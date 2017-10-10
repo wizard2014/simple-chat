@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Chat</title>
+</head>
+<body>
+
+    <script>
+        let socket = new WebSocket('ws://localhost:8081');
+
+        setTimeout(() => {
+          socket.send(JSON.stringify({
+            event: 'joined',
+            data: {
+              user: {
+                id: 1,
+                name: 'Username'
+              }
+            }
+          }));
+        }, 2000);
+    </script>
+</body>
+</html>
