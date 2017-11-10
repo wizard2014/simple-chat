@@ -22,11 +22,15 @@ class Chat extends SocketAbstract implements MessageComponentInterface
 
     public function onClose(ConnectionInterface $connection)
     {
+        if (!isset($this->users[$connection->resourceId])) {
+            return;
+        }
+
         $user = $this->users[$connection->resourceId];
 
         $this->broadcast(new UserLeft($user))->toAll();
 
-        unset($this->clients[$connection->resourceId]);
+        unset($this->clients[$connection->resourceId], $this->users[$connection->resourceId]);
     }
 
     public function onError(ConnectionInterface $connection, \Exception $e)

@@ -3,6 +3,7 @@
 namespace App\Socket;
 
 use App\Events\Event;
+use Ratchet\ConnectionInterface;
 
 class Broadcast
 {
@@ -19,6 +20,20 @@ class Broadcast
     {
         foreach ($this->clients as $client) {
             $client->send($this->event);
+        }
+    }
+
+    public function to(ConnectionInterface $client)
+    {
+        $client->send($this->event);
+    }
+
+    public function toAllExcept(ConnectionInterface $clientToExclude)
+    {
+        foreach ($this->clients as $client) {
+            if ($client !== $clientToExclude) {
+                $client->send($this->event);
+            }
         }
     }
 }

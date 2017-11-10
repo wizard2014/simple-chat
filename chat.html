@@ -61,30 +61,76 @@
         let bus = new Vue();
 
         let Message = {
+          props: [
+            'message'
+          ],
           template: `
             <div class="chat__message">
-                <strong>Name</strong>: Hello
+                <strong>{{ message.user.name }}</strong>: {{ message.body }}
             </div>
           `
         };
 
         let Messages = {
+          data () {
+            return {
+              messages: []
+            };
+          },
           components: {
             Message
           },
           template: `
             <div class="chat__messages">
-                <message></message>
+                <message v-for="message in messages" :key="message.id" :message="message"></message>
             </div>
-          `
+          `,
+          mounted () {
+            bus.$on('message', (payload) => {
+              this.messages.unshift(payload);
+            });
+          }
         };
 
         let MessageForm = {
+          data () {
+            return {
+              body: ''
+            };
+          },
+
           template: `
             <form action="#">
-                <textarea class="chat__input" placeholder="Type your message"></textarea>
+                <textarea class="chat__input" placeholder="Type your message" v-model="body" @keydown="handleInput"></textarea>
             </form>
-          `
+          `,
+          methods: {
+            handleInput (e) {
+              if (e.keyCode === 13 && e.shiftKey === false) {
+                e.preventDefault();
+
+                this.send();
+              }
+            },
+            send () {
+              let payload = {
+                event: 'message',
+                data: {
+                  id: Date.now(),
+                  body: this.body,
+                  user: {
+                    name: 'You'
+                  }
+                }
+              };
+
+              bus.$emit('message', payload.data);
+
+              socket.send(JSON.stringify(payload));
+
+              this.body = null;
+            }
+          }
         };
 
         let People = {
@@ -104,6 +150,10 @@
           mounted () {
             bus.$on('joined', (payload) => {
               this.addUser(payload.user);
+            });
+
+            bus.$on('users', (payload) => {
+              this.users = payload;
             });
 
             bus.$on('left', (payload) => {

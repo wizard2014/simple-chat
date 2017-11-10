@@ -2,8 +2,6 @@
 
 namespace App\Events;
 
-use App\Events\Event;
-
 class UserLeft extends Event
 {
     protected $user;
@@ -25,4 +23,3 @@ class UserLeft extends Event
         ];
     }
 }
-
